@@ -3,3 +3,10 @@ numpy==1.26.4
 matplotlib==3.8.4
 seaborn==0.13.2
 scikit-learn==1.4.2
+tqdm==4.66.4
+openpyxl==3.1.2
+gpsphoto==2.2.3
+opencv-python==4.9.0.80
+filehash==0.2.dev1
+lorem-text==2.1
+atpbar==2.0.0
