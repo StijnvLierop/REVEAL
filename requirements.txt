@@ -7,6 +7,7 @@ tqdm==4.66.4
 openpyxl==3.1.2
 gpsphoto==2.2.3
 opencv-python==4.9.0.80
+pillow==9.5.0
 filehash==0.2.dev1
 lorem-text==2.1
 atpbar==2.0.0
