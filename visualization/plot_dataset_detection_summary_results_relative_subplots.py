@@ -12,7 +12,7 @@ def main(detection_results: str):
     df = pd.read_excel(detection_results, decimal=',')
 
     # Remove Algorithms
-    df = df[~df['Detector'].isin(['RS', 'SRNet', 'StegExpose'])]
+    df = df[~df['Detector'].isin(['RS', 'SRNet'])]
 
     # Calculate rates
     df['FPR'] = df['False Positives'] / (df['False Positives'] + df['True Negatives'])
@@ -35,19 +35,20 @@ def main(detection_results: str):
     df_filtered = df[df['Dataset'] != "Ours"]
 
     # Get unique datasets and detectors
-    datasets = df['Dataset'].unique()
-    detectors = df['Detector'].unique()
+    datasets = df_filtered['Dataset'].unique()
+    detectors = df_filtered['Detector'].unique()
 
     # Create figure
-    fig, axs = plt.subplots(2, 4, figsize=(12, 6))
+    fig, axs = plt.subplots(3, 3, figsize=(9, 9))
 
     for d, ax in enumerate(axs.ravel()):
         data = df_filtered[df_filtered['Detector'] == detectors[d]]
+        ax.scatter(0, 0, label='Ours')
         for k, dataset in enumerate(datasets):
             data_sub = data[data['Dataset'] == dataset]
             ax.scatter(data_sub['FNR_diff'], data_sub['FPR_diff'], label=dataset)
-            ax.set_xlabel('False Negative Rate')
-            ax.set_ylabel('False Positive Rate')
+            ax.set_xlabel('$\Delta$ False Negative Rate')
+            ax.set_ylabel('$\Delta$ False Positive Rate')
             ax.set_ylim(-0.76, 0.76)
             ax.set_xlim(-0.3, 0.3)
             ax.hlines(y=0, xmin=-0.3, xmax=0.3, color='gray', linestyle='--', zorder=0)
@@ -59,8 +60,8 @@ def main(detection_results: str):
             ax.set_title(f"{detectors[d]}\n")
             ax.text(0, 0.85, f'(Ours: FPR={FPR_Ours}, FNR={FNR_Ours})', fontsize=9, ha='center')
 
-    plt.subplots_adjust(bottom=0.2, hspace=0.6, wspace=0.4)
-    plt.legend(loc='lower center', bbox_to_anchor=(1.3, 1))
+    plt.subplots_adjust(bottom=0.1, hspace=0.6, wspace=0.4)
+    plt.legend(loc='lower center', bbox_to_anchor=(-1, -0.5), ncol=4)
     plt.suptitle("Difference in False Positive and False Negative Rates for different Dataset-Detector Combinations", size=15)
     plt.savefig("dataset_detection_results_relative_subplots.png", dpi=600)
 
