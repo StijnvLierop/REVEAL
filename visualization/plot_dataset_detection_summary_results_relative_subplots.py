@@ -41,24 +41,27 @@ def main(detection_results: str):
     # Create figure
     fig, axs = plt.subplots(3, 3, figsize=(9, 9))
 
+    # Define markers
+    markers = ["^" , "," , "o" , "v"]
+
     for d, ax in enumerate(axs.ravel()):
         data = df_filtered[df_filtered['Detector'] == detectors[d]]
-        ax.scatter(0, 0, label='Ours')
+        ax.scatter(0, 0, label='REVEAL', alpha=0.5, marker='*', s=100)
         for k, dataset in enumerate(datasets):
             data_sub = data[data['Dataset'] == dataset]
-            ax.scatter(data_sub['FNR_diff'], data_sub['FPR_diff'], label=dataset)
+            ax.scatter(data_sub['FNR_diff'], data_sub['FPR_diff'], label=dataset, alpha=0.5, marker=markers[k])
             ax.set_xlabel('$\Delta$ False Negative Rate')
             ax.set_ylabel('$\Delta$ False Positive Rate')
             ax.set_ylim(-0.76, 0.76)
-            ax.set_xlim(-0.3, 0.3)
-            ax.hlines(y=0, xmin=-0.3, xmax=0.3, color='gray', linestyle='--', zorder=0)
+            ax.set_xlim(-0.5, 0.5)
+            ax.hlines(y=0, xmin=-0.5, xmax=0.5, color='gray', linestyle='--', zorder=0)
             ax.vlines(x=0, ymin=-0.75, ymax=0.75, color='gray', linestyle='--', zorder=0)
             ax.spines['top'].set_visible(False)
             ax.spines['right'].set_visible(False)
             FPR_Ours = round(df.loc[(df['Detector'] == detectors[d]) & (df['Dataset'] == 'Ours'), 'FPR'].to_list()[0], 1)
             FNR_Ours = round(df.loc[(df['Detector'] == detectors[d]) & (df['Dataset'] == 'Ours'), 'FNR'].to_list()[0], 1)
             ax.set_title(f"{detectors[d]}\n")
-            ax.text(0, 0.85, f'(Ours: FPR={FPR_Ours}, FNR={FNR_Ours})', fontsize=9, ha='center')
+            ax.text(0, 0.85, f'(REVEAL: FPR={FPR_Ours}, FNR={FNR_Ours})', fontsize=9, ha='center')
 
     plt.subplots_adjust(bottom=0.1, hspace=0.6, wspace=0.4)
     plt.legend(loc='lower center', bbox_to_anchor=(-1, -0.5), ncol=4)
