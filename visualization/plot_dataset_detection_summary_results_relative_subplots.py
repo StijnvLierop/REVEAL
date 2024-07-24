@@ -42,7 +42,7 @@ def main(detection_results: str):
     fig, axs = plt.subplots(3, 3, figsize=(9, 9))
 
     # Define markers
-    markers = ["^" , "," , "o" , "v"]
+    markers = ["," , "^" , "o" , "v"]
 
     for d, ax in enumerate(axs.ravel()):
         data = df_filtered[df_filtered['Detector'] == detectors[d]]
