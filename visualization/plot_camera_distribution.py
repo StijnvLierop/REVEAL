@@ -75,7 +75,6 @@ def main(dataset_master: str, camera_info: str):
     plt.text(0.05, 0.901, makes[10], fontsize=12, transform=plt.gcf().transFigure)
 
     plt.xlabel('Nr of pictures')
-    plt.title('Camera Distribution', size=15)
     plt.gca().xaxis.grid(True, zorder=0)
     plt.subplots_adjust(left=0.5)
     plt.gca().spines['top'].set_visible(False)
