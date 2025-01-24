@@ -1,3 +1,5 @@
+from argparse import FileType
+
 import matplotlib.pyplot as plt
 import pandas as pd
 import argparse
@@ -9,13 +11,13 @@ def main(dataset_master: str, camera_info: str):
 
     # Read data
     df = pd.read_csv(dataset_master, decimal=',', sep=';')
-    camera_df = pd.read_csv(camera_info, sep=';')
+    camera_df = pd.read_csv(camera_info, sep=',')
 
     # Add camera information to dataframe
     camera_df['camera'] = (camera_df['Make'] + ' ' + camera_df['Model']).astype(str)
     camera_df['camera'] = camera_df['camera'].str.replace('Apple ', '')
     camera_df['camera'] = camera_df['camera'].str.replace('Stable Diffusion ', '')
-    camera_df = camera_df[['camera', 'Make', 'Model']]
+    camera_df = camera_df[['camera', 'Make', 'Model', 'File Type']]
     df['camera'] = df['camera'].astype(str)
     df = pd.merge(df, camera_df, on='camera', how='left')
 
@@ -26,9 +28,10 @@ def main(dataset_master: str, camera_info: str):
     # Make barplot
     plt.figure(figsize=(6, 10))
     makes = []
-    for i, make in enumerate(df['Make'].unique()):
+    for i, make in enumerate(df['Make'].dropna().unique()):
         make_models = df_grouped[df_grouped['Make'] == make]
-        makes.append(make)
+        filetype = df[df['Make'] == make]['File Type'].tolist()[0]
+        makes.append(make + ' (' + filetype + ')')
         plt.barh(make_models['Model'], make_models['counts'], label=make, zorder=3)
 
     # Plot lines
