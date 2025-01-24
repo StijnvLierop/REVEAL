@@ -1,6 +1,9 @@
+import os
+
 import cv2
 from PIL import Image
 import numpy as np
+import jpeglib
 
 
 def complexity(img: np.ndarray) -> float:
@@ -58,3 +61,31 @@ def motion_blur(img: np.ndarray) -> float:
     :return: The motion blue of the image.
     """
     return cv2.Laplacian(img, cv2.CV_64F).var()
+
+
+def bpnzac(img_path, message_path) -> float:
+    """
+    Calculates the bits hidden per non-zero coefficient (bpnzac) of a given input image and hidden file.
+    :param img_path: path of the input image.
+    :param message_path: path of the hidden file.
+    :return: The bpnzac of the stego image.
+    """
+    try:
+        # Read bits in message
+        n_bits_hidden = os.path.getsize(message_path) * 8
+
+        # Determine DCT coefficients
+        im = jpeglib.read_dct(img_path)
+
+        # calculate number of non-zero AC coefficients
+        nzAC = 0
+        for coeff in [im.Y, im.Cb, im.Cr]:
+            nzAC += (np.count_nonzero(coeff) - np.count_nonzero(coeff[:, :, 0, 0]))
+
+        # calculate bpnzac
+        bpnzac = n_bits_hidden / nzAC
+
+        return bpnzac
+
+    except:
+        return 0

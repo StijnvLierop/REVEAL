@@ -13,7 +13,8 @@ HELPER_PARENTHESES = '"'
 SUDO_PASSWORD = ""
 WATERMARK = "Made@NFI!"
 
-
+# Command strings for the command line based tools. For GUI tools Microsoft Power Automate was used. These scripts could
+# not be included in this repository.
 def write_tool_command(command_string, stego_image_name, modified_image_name,
                        tool, input_path, message_path, dest_path, key,
                        linux_tool_dir):
