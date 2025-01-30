@@ -4,7 +4,6 @@ from tqdm import tqdm
 from filehash import FileHash
 from utils import *
 from modifications import get_nr_of_colour_channels
-from GPSPhoto import gpsphoto
 import argparse
 
 
@@ -16,8 +15,9 @@ def main(dataset_master_file: str,
          reread_original_pictures: bool = False,
          reread_modified_pictures: bool = False,
          reread_stego_pictures: bool = False):
+
     # Read dataset master file into dataframe
-    dataset = pd.read_csv(dataset_master_file, sep=';', decimal=',')
+    dataset = pd.read_csv(dataset_master_file)
 
     # Calculate hashes of stego pictures if not yet filled in
     MD5Hasher = FileHash("md5")
@@ -48,45 +48,21 @@ def main(dataset_master_file: str,
         # Check stego picture hash
         if row['stegoPictureHash'] == '' or pd.isna(row['stegoPictureHash']) or row['stegoPictureHash'] == "Stego picture was not found" or reread_stego_pictures:
             pic = os.path.join(stego_picture_dir, row['stegoPictureName'])
-            if row['tool'] in [81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100]:
-                pic = os.path.join(stego_picture_dir, 'Tool ' + str(row['tool']), row['stegoPictureName'])
             try:
                 picture = Image.open(pic)
                 opencv_pic = PIL_to_opencv(pic)
                 dataset.loc[index, 'stegoPictureHash'] = MD5Hasher.hash_file(pic)
                 dataset.loc[index, 'stegoPictureNrOfColourChannels'] = get_nr_of_colour_channels(picture)
-                dataset.loc[index, 'stegoPictureAvgHue'] = average_hue(opencv_pic)
                 dataset.loc[index, 'stegoPictureComplexity'] = complexity(opencv_pic)
-                dataset.loc[index, 'stegoPictureMotionBlur'] = motion_blur(opencv_pic)
-                dataset.loc[index, 'stegoPictureFilesize'] = os.path.getsize(pic)
                 width, height = picture.size
                 dataset.loc[index, 'stegoPictureWidth'] = width
                 dataset.loc[index, 'stegoPictureHeight'] = height
-                dataset.loc[index, 'stegoPictureNrOfPixels'] = width*height
-                hasExif = False
-                if picture.getexif():
-                    hasExif = True
-                dataset.loc[index, 'stegoPictureHasExif'] = hasExif
-                gps_data = gpsphoto.getGPSData(pic)
-                if gps_data:
-                    dataset.loc[index, 'stegoPictureLatitude'] = gps_data['Latitude']
-                    dataset.loc[index, 'stegoPictureLongitude'] = gps_data['Longitude']
-                else:
-                    dataset.loc[index, 'stegoPictureLatitude'] = np.nan
-                    dataset.loc[index, 'stegoPictureLongitude'] = np.nan
             except:
                 dataset.loc[index, 'stegoPictureHash'] = np.nan
                 dataset.loc[index, 'stegoPictureNrOfColourChannels'] = np.nan
-                dataset.loc[index, 'stegoPictureAvgHue'] = np.nan
                 dataset.loc[index, 'stegoPictureComplexity'] = np.nan
-                dataset.loc[index, 'stegoPictureMotionBlur'] = np.nan
-                dataset.loc[index, 'stegoPictureFilesize'] = np.nan
                 dataset.loc[index, 'stegoPictureWidth'] = np.nan
                 dataset.loc[index, 'stegoPictureHeight'] = np.nan
-                dataset.loc[index, 'stegoPictureNrOfPixels'] = np.nan
-                dataset.loc[index, 'stegoPictureHasExif'] = np.nan
-                dataset.loc[index, 'stegoPictureLatitude'] = np.nan
-                dataset.loc[index, 'stegoPictureLongitude'] = np.nan
         pbar.update(1)
 
     # Check if modified picture exists and adjust dataset master accordingly
@@ -94,41 +70,21 @@ def main(dataset_master_file: str,
     for index, row in dataset.iterrows():
         if not os.path.exists(os.path.join(modified_picture_dir, row['modifiedPictureName'])):
             dataset.loc[index, 'modifiedPictureHash'] = np.nan
-            dataset.loc[index, 'modifiedPictureAvgHue'] = np.nan
             dataset.loc[index, 'modifiedPictureComplexity'] = np.nan
             dataset.loc[index, 'modifiedPictureNrOfColourChannels'] = np.nan
-            dataset.loc[index, 'modifiedPictureMotionBlur'] = np.nan
-            dataset.loc[index, 'modifiedPictureFilesize'] = np.nan
             dataset.loc[index, 'modifiedPictureWidth'] = np.nan
             dataset.loc[index, 'modifiedPictureHeight'] = np.nan
-            dataset.loc[index, 'modifiedPictureNrOfPixels'] = np.nan
-            dataset.loc[index, 'modifiedPictureHasExif'] = np.nan
         elif pd.isna(dataset.loc[index, 'modifiedPictureHash']) or reread_modified_pictures:
             try:
                 pic_path = os.path.join(modified_picture_dir, row['modifiedPictureName'])
                 picture = Image.open(pic_path)
                 opencv_pic = PIL_to_opencv(pic_path)
                 dataset.loc[index, 'modifiedPictureHash'] = MD5Hasher.hash_file(pic_path)
-                dataset.loc[index, 'modifiedPictureAvgHue'] = average_hue(opencv_pic)
                 dataset.loc[index, 'modifiedPictureComplexity'] = complexity(opencv_pic)
                 dataset.loc[index, 'modifiedPictureNrOfColourChannels'] = get_nr_of_colour_channels(picture)
-                dataset.loc[index, 'modifiedPictureMotionBlur'] = motion_blur(opencv_pic)
-                dataset.loc[index, 'modifiedPictureFilesize'] = os.path.getsize(pic_path)
                 width, height = picture.size
                 dataset.loc[index, 'modifiedPictureWidth'] = width
                 dataset.loc[index, 'modifiedPictureHeight'] = height
-                dataset.loc[index, 'modifiedPictureNrOfPixels'] = width*height
-                hasExif = False
-                if picture.getexif():
-                    hasExif = True
-                dataset.loc[index, 'modifiedPictureHasExif'] = hasExif
-                gps_data = gpsphoto.getGPSData(pic_path)
-                if gps_data:
-                    dataset.loc[index, 'modifiedPictureLatitude'] = gps_data['Latitude']
-                    dataset.loc[index, 'modifiedPictureLongitude'] = gps_data['Longitude']
-                else:
-                    dataset.loc[index, 'modifiedPictureLatitude'] = np.nan
-                    dataset.loc[index, 'modifiedPictureLongitude'] = np.nan
             except:
                 pass
         pbar.update(1)
@@ -141,9 +97,6 @@ def main(dataset_master_file: str,
             dataset.loc[index, 'originalPictureHash'] = MD5Hasher.hash_file(pic_path)
         pbar.update(1)
 
-    # Update dataset
-    dataset.to_csv(dataset_master_file, index=False, sep=';', decimal=',')
-
     # Recalculate original picture complexities and avg hues
     if reread_original_pictures:
         pbar = tqdm(total=len(dataset))
@@ -152,33 +105,17 @@ def main(dataset_master_file: str,
             picture = Image.open(pic_path)
             opencv_pic = PIL_to_opencv(pic_path)
             dataset.loc[index, 'originalPictureComplexity'] = complexity(opencv_pic)
-            dataset.loc[index, 'originalPictureAvgHue'] = average_hue(opencv_pic)
-            dataset.loc[index, 'originalPictureMotionBlur'] = motion_blur(opencv_pic)
-            dataset.loc[index, 'originalPictureFilesize'] = os.path.getsize(pic_path)
             dataset.loc[index, 'originalPictureNrOfColourChannels'] = get_nr_of_colour_channels(picture)
-            hasExif = False
-            if picture.getexif():
-                hasExif = True
-            dataset.loc[index, 'originalPictureHasExif'] = hasExif
             width, height = picture.size
             dataset.loc[index, 'originalPictureWidth'] = width
             dataset.loc[index, 'originalPictureHeight'] = height
-            dataset.loc[index, 'originalPictureNrOfPixels'] = width*height
-            gps_data = gpsphoto.getGPSData(pic_path)
-            if gps_data:
-                dataset.loc[index, 'originalPictureLatitude'] = gps_data['Latitude']
-                dataset.loc[index, 'originalPictureLongitude'] = gps_data['Longitude']
-            else:
-                dataset.loc[index, 'originalPictureLatitude'] = np.nan
-                dataset.loc[index, 'originalPictureLongitude'] = np.nan
             pbar.update(1)
 
     # Remove helper column
     dataset = dataset.drop('modifiedPictureInteger', axis=1)
 
     # Update dataset
-    dataset.to_csv(dataset_master_file, index=False, sep=';', decimal=',')
-    dataset.to_excel(dataset_master_file.split('.')[0] + '.xlsx', index=False)
+    dataset.to_csv(dataset_master_file, index=False, decimal='.')
 
     # Drop part of dataset for which stego did not work
     dataset_successfully_created_pictures = dataset.dropna(subset=['stegoPictureHash'])
@@ -186,9 +123,6 @@ def main(dataset_master_file: str,
     print(f'Proportion successfully generated pictures: {round(len(dataset_successfully_created_pictures)/len(dataset) * 100, 2)}%')
     print(f'Proportion successfully modified pictures: {round(len(dataset_successfully_modified_pictures)/len(dataset) * 100, 2)}%')
     print()
-
-    # Filter on actually stegood pictures for hashing checks
-    dataset_successfully_created_pictures = dataset_successfully_created_pictures[~dataset_successfully_created_pictures['tool'].isin([81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100])]
 
     # Perform checks
     if not len(dataset_successfully_modified_pictures)==len(dataset):
@@ -217,14 +151,14 @@ def main(dataset_master_file: str,
             print(dataset_successfully_modified_pictures[dataset_successfully_modified_pictures['originalPictureHash'].duplicated() == True]['originalPictureName'])
 
         # Control condition hashes of modified pictures and stego pictures are the same
-        control_condition_pictures = dataset_successfully_created_pictures[dataset_successfully_created_pictures['tool'] == 0]
+        control_condition_pictures = dataset_successfully_created_pictures[dataset_successfully_created_pictures['toolName'] == 'Control Condition']
         control_modified_same_as_stego = control_condition_pictures['modifiedPictureHash'] == control_condition_pictures['stegoPictureHash']
         print("Modified pictures are the same as stego pictures for control condition:", control_modified_same_as_stego.all())
         if not control_modified_same_as_stego.all():
             print(control_condition_pictures[control_modified_same_as_stego == False]['modifiedPictureName'])
 
         # Stego condition hashes of modified pictures and stego pictures are different
-        stego_condition_pictures = dataset_successfully_created_pictures[dataset_successfully_created_pictures['tool'] != 0]
+        stego_condition_pictures = dataset_successfully_created_pictures[dataset_successfully_created_pictures['toolName'] == 'Control Condition']
         stego_modified_different_from_stego = (stego_condition_pictures['modifiedPictureHash'] != stego_condition_pictures['stegoPictureHash'])
         print("Modified pictures are different from stego pictures for stego/watermarking condition:", stego_modified_different_from_stego.all())
         if not stego_modified_different_from_stego.all():
