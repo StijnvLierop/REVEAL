@@ -26,9 +26,6 @@ def main(dataset_master_file: str,
     dataset['modifiedPictureInteger'] = (
         dataset['modifiedPictureName'].apply(lambda x: x.split('.')[0]))
 
-    # Print
-    print("Calculating Stego Picture Hashes...")
-
     # Check for missed files
     if check_for_missed_files:
         for file in os.listdir(stego_picture_dir):
