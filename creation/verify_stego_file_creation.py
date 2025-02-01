@@ -112,7 +112,8 @@ def main(dataset_master_file: str,
     dataset = dataset.drop('modifiedPictureInteger', axis=1)
 
     # Update dataset
-    dataset.to_csv(dataset_master_file, index=False, decimal='.')
+    if reread_original_pictures or reread_modified_pictures or reread_stego_pictures or check_for_missed_files:
+        dataset.to_csv(dataset_master_file, index=False, decimal='.')
 
     # Drop part of dataset for which stego did not work
     dataset_successfully_created_pictures = dataset.dropna(subset=['stegoPictureHash'])
@@ -155,7 +156,7 @@ def main(dataset_master_file: str,
             print(control_condition_pictures[control_modified_same_as_stego == False]['modifiedPictureName'])
 
         # Stego condition hashes of modified pictures and stego pictures are different
-        stego_condition_pictures = dataset_successfully_created_pictures[dataset_successfully_created_pictures['toolName'] == 'Control Condition']
+        stego_condition_pictures = dataset_successfully_created_pictures[dataset_successfully_created_pictures['toolName'] != 'Control Condition']
         stego_modified_different_from_stego = (stego_condition_pictures['modifiedPictureHash'] != stego_condition_pictures['stegoPictureHash'])
         print("Modified pictures are different from stego pictures for stego/watermarking condition:", stego_modified_different_from_stego.all())
         if not stego_modified_different_from_stego.all():
@@ -176,7 +177,7 @@ def main(dataset_master_file: str,
         embedding_rate_modified_picture = dataset_stego['embeddingRate'].apply(lambda x: str(x).replace(',', '.')).astype(float)
 
         nr_of_pixels_in_message = dataset_stego['message'].apply(lambda x: int(x.split("_")[1]))
-        nr_of_pixels_modified_picture = dataset_stego['modifiedPictureNrOfPixels'].astype(int)
+        nr_of_pixels_modified_picture = dataset_stego['modifiedPictureWidth'].astype(int) * dataset_stego['modifiedPictureHeight'].astype(int)
 
         nr_of_colour_channels_in_message = dataset_stego['message'].apply(lambda x: int(x.split("_")[2].split('.')[0]))
         nr_of_colour_channels_modified_picture = dataset_stego['modifiedPictureNrOfColourChannels'].astype(int)
