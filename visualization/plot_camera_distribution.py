@@ -10,7 +10,7 @@ def main(dataset_master: str, camera_info: str):
     plt.rcParams["font.family"] = "Times New Roman"
 
     # Read data
-    df = pd.read_csv(dataset_master, decimal=',', sep=';')
+    df = pd.read_csv(dataset_master)
     camera_df = pd.read_csv(camera_info, sep=',')
 
     # Add camera information to dataframe
@@ -83,7 +83,7 @@ def main(dataset_master: str, camera_info: str):
     plt.gca().spines['top'].set_visible(False)
     plt.gca().spines['right'].set_visible(False)
     plt.tight_layout()
-    plt.savefig("camera_distribution.png", dpi=600)
+    plt.savefig("camera_distribution.svg", dpi=600)
 
 
 if __name__ == '__main__':
