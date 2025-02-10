@@ -1,20 +1,15 @@
 import os
 import numpy as np
 import pandas as pd
-import skimage.io
-from PIL import Image, ImageOps, ImageFile
-import shutil
+from PIL import ImageOps, ImageFile
 import torch
-import torchvision
 from torchvision import transforms
 import subprocess
-import matplotlib.pyplot as plt
 import time
 import random
-import cv2
-from PIL import Image, ExifTags
+from PIL import Image
 from filehash import FileHash
-from utils import average_hue, complexity, PIL_to_opencv, motion_blur
+from creation.utils import average_hue, complexity, PIL_to_opencv, motion_blur
 
 ImageFile.LOAD_TRUNCATED_IMAGES = True
 Image.MAX_IMAGE_PIXELS = None
@@ -37,7 +32,7 @@ modifications = {
     "downsampling to 512x512": ["resolution modification", 0.003],
     "downsampling to 256x256": ["resolution modification", 0.003],
     "upsampling to 1280x720" : ["resolution modification", 0.008],
-    "downsampling to 1280x720": ["resolution modification", 10.01],
+    "downsampling to 1280x720": ["resolution modification", 0.008],
     "upsampling to 1080x1080" : ["resolution modification", 0.008],
     "downsampling to 1080x1080": ["resolution modification", 0.003],
     "upsampling to 3840x2160" : ["resolution modification", 0.005],
