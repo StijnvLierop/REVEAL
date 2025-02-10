@@ -9,7 +9,7 @@ def main(complexity_color_image_datasets: str):
     plt.rcParams["font.family"] = "Times New Roman"
 
     # Read data
-    df = pd.read_csv(complexity_color_image_datasets, sep=';', decimal=',')
+    df = pd.read_csv(complexity_color_image_datasets)
 
     # Plot Complexity and Color distribution for every dataset in one plot
     fig = plt.figure(figsize=(6, 5))
